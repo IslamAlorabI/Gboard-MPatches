@@ -151,6 +151,11 @@ public final class GboardPatchesSettingsActivity extends Activity
     private View headerCardView;
     private TextView headerTitleView;
     private TextView headerSummaryView;
+    private LinearLayout searchContainer;
+    private EditText searchField;
+    private View searchClearButton;
+    private volatile String searchQuery = "";
+    private Runnable searchRenderRunnable;
     private LinearLayout panelContainer;
     private ScrollView contentScrollView;
     private LinearLayout contentColumn;
@@ -257,6 +262,7 @@ public final class GboardPatchesSettingsActivity extends Activity
         setRestartButtonPending(false);
         cancelDeferredRender();
         cancelOfflineSpeechLanguageQuery();
+        cancelSearchRender();
         unregisterBackCallback();
         detachKeyboardPreviewSafely();
         screenBuildExecutor.shutdownNow();
@@ -1551,6 +1557,8 @@ public final class GboardPatchesSettingsActivity extends Activity
 
         headerCardView = buildHeaderCard();
         contentColumn.addView(headerCardView);
+        searchContainer = (LinearLayout) buildSearchField();
+        contentColumn.addView(searchContainer);
         contentColumn.addView(buildPanelCard());
 
         contentScrollView.addView(contentColumn);
@@ -1982,6 +1990,84 @@ public final class GboardPatchesSettingsActivity extends Activity
         header.addView(headerTitleView);
         header.addView(headerSummaryView);
         return header;
+    }
+
+    private View buildSearchField() {
+        LinearLayout container = new LinearLayout(this);
+        container.setOrientation(LinearLayout.HORIZONTAL);
+        container.setGravity(Gravity.CENTER_VERTICAL);
+        container.setPadding(dp(16), 0, dp(4), 0);
+        container.setBackground(buildTileDrawable(dp(28), dp(28)));
+        LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dp(56));
+        containerParams.topMargin = dp(16);
+        containerParams.bottomMargin = dp(8);
+        container.setLayoutParams(containerParams);
+
+        searchField = new EditText(this);
+        searchField.setSingleLine(true);
+        searchField.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f);
+        searchField.setTypeface(bodyTypeface());
+        searchField.setTextColor(palette.textPrimary);
+        searchField.setHintTextColor(palette.textSecondary);
+        searchField.setHint(text(R.string.gboard_patches_search_hint));
+        searchField.setInputType(android.text.InputType.TYPE_CLASS_TEXT
+                | android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        searchField.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH);
+        searchField.setBackgroundColor(Color.TRANSPARENT);
+        searchField.setPadding(0, 0, dp(8), 0);
+        searchField.setLayoutParams(new LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                1f));
+        container.addView(searchField);
+
+        TextView clearButton = new TextView(this);
+        clearButton.setText("×");
+        clearButton.setTextColor(palette.textSecondary);
+        clearButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24f);
+        clearButton.setGravity(Gravity.CENTER);
+        clearButton.setContentDescription(text(R.string.gboard_patches_search_clear));
+        clearButton.setBackground(buildRippleDrawable(dp(24)));
+        clearButton.setVisibility(View.GONE);
+        clearButton.setLayoutParams(new LinearLayout.LayoutParams(dp(48), dp(48)));
+        clearButton.setOnClickListener(view -> searchField.setText(""));
+        searchClearButton = clearButton;
+        container.addView(clearButton);
+
+        searchField.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence text, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence text, int start, int before, int count) {
+                searchQuery = text == null ? "" : text.toString().trim();
+                searchClearButton.setVisibility(searchQuery.isEmpty() ? View.GONE : View.VISIBLE);
+                if (settingsOrchestrator.snapshot().getCurrent() == null) {
+                    scheduleSearchRender();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable editable) {
+            }
+        });
+        return container;
+    }
+
+    private void scheduleSearchRender() {
+        cancelSearchRender();
+        searchRenderRunnable = this::initializeFeaturesAndRenderSafely;
+        screenRefreshHandler.postDelayed(searchRenderRunnable, 120L);
+    }
+
+    private void cancelSearchRender() {
+        if (searchRenderRunnable != null) {
+            screenRefreshHandler.removeCallbacks(searchRenderRunnable);
+            searchRenderRunnable = null;
+        }
     }
 
     private void installCollapsingTitle() {
@@ -2680,6 +2766,8 @@ public final class GboardPatchesSettingsActivity extends Activity
         applyToolbarActions(screen.getToolbarActions());
         boolean fullBleed = screen.isFullBleed();
         headerCardView.setVisibility(fullBleed ? View.GONE : View.VISIBLE);
+        boolean rootScreen = settingsOrchestrator.snapshot().getCurrent() == null;
+        searchContainer.setVisibility(rootScreen ? View.VISIBLE : View.GONE);
         contentColumn.setPadding(
                 fullBleed ? 0 : dp(16),
                 0,
@@ -2962,15 +3050,64 @@ public final class GboardPatchesSettingsActivity extends Activity
     }
 
     private GboardPatchesSettingsContract.Screen buildRootScreen() {
+        List<GboardPatchesSettingsContract.Feature> visibleFeatures = TextUtils.isEmpty(searchQuery)
+                ? features
+                : searchFeatures(features, searchQuery);
         return createRootScreen(
                 this,
-                features,
+                visibleFeatures,
                 BuildConfig.PATCH_AUTHOR,
                 BuildConfig.PATCH_VERSION,
                 () -> openExternalUrl(ABOUT_AUTHOR_URL),
                 () -> openExternalUrl(ABOUT_PATCH_REPOSITORY_URL),
                 ABOUT_REDESIGN_NAME,
-                () -> openExternalUrl(ABOUT_REDESIGN_URL));
+                () -> openExternalUrl(ABOUT_REDESIGN_URL),
+                searchQuery,
+                text(R.string.gboard_patches_search_no_results));
+    }
+
+    private List<GboardPatchesSettingsContract.Feature> searchFeatures(
+            List<GboardPatchesSettingsContract.Feature> rootFeatures,
+            String query) {
+        List<GboardPatchesSettingsContract.Feature> results =
+                new ArrayList<GboardPatchesSettingsContract.Feature>();
+        String normalizedQuery = query.toLowerCase(Locale.ROOT);
+        for (GboardPatchesSettingsContract.Feature feature : rootFeatures) {
+            collectSearchFeatures(feature, normalizedQuery, false, results);
+        }
+        return results;
+    }
+
+    private void collectSearchFeatures(
+            GboardPatchesSettingsContract.Feature feature,
+            String query,
+            boolean matchedAncestor,
+            List<GboardPatchesSettingsContract.Feature> results) {
+        if (feature == null) {
+            return;
+        }
+        boolean matches = matchedAncestor
+                || containsSearchText(feature.getEntryTitle(), query)
+                || containsSearchText(feature.getEntrySummary(), query);
+        List<GboardPatchesSettingsContract.Feature> children = feature.getNavigationChildren();
+        if (children != null && !children.isEmpty()) {
+            for (GboardPatchesSettingsContract.Feature child : children) {
+                try {
+                    if (child != null && child.isAvailable(this)) {
+                        collectSearchFeatures(child, query, matches, results);
+                    }
+                } catch (Throwable throwable) {
+                    Log.w(TAG, "Failed to evaluate searchable feature availability: "
+                            + child.getClass().getName(), throwable);
+                }
+            }
+        } else if (matches) {
+            results.add(feature);
+        }
+    }
+
+    private boolean containsSearchText(String value, String query) {
+        return value != null && value.toLowerCase(Locale.ROOT).contains(query);
     }
 
     static GboardPatchesSettingsContract.Screen createRootScreen(
@@ -2993,6 +3130,21 @@ public final class GboardPatchesSettingsActivity extends Activity
             Runnable patchRepositoryAction,
             String redesignAuthor,
             Runnable redesignAction) {
+        return createRootScreen(host, rootFeatures, aboutAuthor, patchVersion, authorAction,
+                patchRepositoryAction, redesignAuthor, redesignAction, "", null);
+    }
+
+    private static GboardPatchesSettingsContract.Screen createRootScreen(
+            GboardPatchesSettingsContract.FeatureHost host,
+            List<? extends GboardPatchesSettingsContract.Feature> rootFeatures,
+            String aboutAuthor,
+            String patchVersion,
+            Runnable authorAction,
+            Runnable patchRepositoryAction,
+            String redesignAuthor,
+            Runnable redesignAction,
+            String searchQuery,
+            String noResultsMessage) {
         List<GboardPatchesSettingsContract.Row> featureRows =
                 new ArrayList<GboardPatchesSettingsContract.Row>();
         Context context = host == null ? null : host.getContext();
@@ -3036,25 +3188,42 @@ public final class GboardPatchesSettingsActivity extends Activity
                 patchVersion,
                 true,
                 patchRepositoryAction));
+        List<GboardPatchesSettingsContract.StatusBlock> statusBlocks =
+                new ArrayList<GboardPatchesSettingsContract.StatusBlock>();
+        if (!TextUtils.isEmpty(searchQuery) && featureRows.isEmpty()) {
+            statusBlocks.add(new GboardPatchesSettingsContract.StatusBlock(
+                    noResultsMessage,
+                    GboardSettingsText.get(context, R.string.gboard_patches_search_try_again)));
+        }
         return new GboardPatchesSettingsContract.Screen(
                 GboardSettingsText.get(context, R.string.gboard_patches_activity_title),
                 GboardSettingsText.get(context, R.string.gboard_patches_header_badge),
                 GboardSettingsText.get(context, R.string.gboard_patches_header_title),
                 GboardSettingsText.get(context, R.string.gboard_patches_header_summary),
-                Collections.emptyList(),
-                Arrays.asList(
-                        new GboardPatchesSettingsContract.Section(
-                                GboardSettingsText.get(context,
-                                        R.string.gboard_patches_section_features),
-                                featureRows),
-                        new GboardPatchesSettingsContract.Section(
-                                GboardSettingsText.get(context,
-                                        R.string.gboard_patches_section_about),
-                                aboutRows),
-                        new GboardPatchesSettingsContract.Section(
-                                GboardSettingsText.get(context,
-                                        R.string.gboard_patches_section_preferences),
-                                preferenceRows)));
+                statusBlocks,
+                rootSections(context, featureRows, aboutRows, preferenceRows, searchQuery));
+    }
+
+    private static List<GboardPatchesSettingsContract.Section> rootSections(
+            Context context,
+            List<GboardPatchesSettingsContract.Row> featureRows,
+            List<GboardPatchesSettingsContract.Row> aboutRows,
+            List<GboardPatchesSettingsContract.Row> preferenceRows,
+            String searchQuery) {
+        List<GboardPatchesSettingsContract.Section> sections =
+                new ArrayList<GboardPatchesSettingsContract.Section>();
+        if (TextUtils.isEmpty(searchQuery) || !featureRows.isEmpty()) {
+            sections.add(new GboardPatchesSettingsContract.Section(
+                    GboardSettingsText.get(context, R.string.gboard_patches_section_features),
+                    featureRows));
+        }
+        sections.add(new GboardPatchesSettingsContract.Section(
+                GboardSettingsText.get(context, R.string.gboard_patches_section_about),
+                aboutRows));
+        sections.add(new GboardPatchesSettingsContract.Section(
+                GboardSettingsText.get(context, R.string.gboard_patches_section_preferences),
+                preferenceRows));
+        return sections;
     }
 
     private static void showLanguageDialog(GboardPatchesSettingsContract.FeatureHost host) {

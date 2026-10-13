@@ -144,6 +144,22 @@
         <translation locale="en">Features</translation>
         <translation locale="zh-Hant">功能</translation>
     </string>
+    <string name="gboard_patches_search_hint">
+        <translation locale="en">Search patches</translation>
+        <translation locale="zh-Hant">搜尋 Patch</translation>
+    </string>
+    <string name="gboard_patches_search_clear">
+        <translation locale="en">Clear search</translation>
+        <translation locale="zh-Hant">清除搜尋</translation>
+    </string>
+    <string name="gboard_patches_search_no_results">
+        <translation locale="en">No patches found</translation>
+        <translation locale="zh-Hant">找不到 Patch</translation>
+    </string>
+    <string name="gboard_patches_search_try_again">
+        <translation locale="en">Try a different name or keyword.</translation>
+        <translation locale="zh-Hant">請嘗試其他名稱或關鍵字。</translation>
+    </string>
     <string name="gboard_patches_section_about">
         <translation locale="en">About</translation>
         <translation locale="zh-Hant">關於</translation>
