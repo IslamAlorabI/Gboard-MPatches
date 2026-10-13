@@ -129,7 +129,7 @@ public final class GboardPatchesSettingsActivity extends Activity
     private static final String TOOLBAR_TITLE_PATCHES = "Patches";
     private static final String ABOUT_AUTHOR_URL = "https://github.com/jasonwu1994";
     private static final String ABOUT_PATCH_REPOSITORY_URL =
-            "https://github.com/jasonwu1994/Gboard-patches";
+            "https://github.com/IslamAlorabI/Gboard-MPatches";
     private static final String ABOUT_REDESIGN_NAME = "Islam AlorabI";
     private static final String ABOUT_REDESIGN_URL = "https://github.com/IslamAlorabI";
     private static final String DOCUMENT_TYPE_FALLBACK = "text/plain";
