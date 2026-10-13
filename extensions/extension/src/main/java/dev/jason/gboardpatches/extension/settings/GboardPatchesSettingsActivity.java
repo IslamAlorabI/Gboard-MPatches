@@ -1536,7 +1536,7 @@ public final class GboardPatchesSettingsActivity extends Activity
 
         contentColumn = new LinearLayout(this);
         contentColumn.setOrientation(LinearLayout.VERTICAL);
-        contentColumn.setPadding(dp(16), 0, dp(16), dp(24));
+        contentColumn.setPadding(dp(16), 0, dp(16), 0);
         contentColumn.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -1664,7 +1664,7 @@ public final class GboardPatchesSettingsActivity extends Activity
                 return true;
             });
         }
-        restartButton.setOnClickListener(view -> requestGboardRestart());
+        restartButton.setOnClickListener(view -> confirmGboardRestart());
         return restartButton;
     }
 
@@ -1699,6 +1699,14 @@ public final class GboardPatchesSettingsActivity extends Activity
                 // The restart guard must never escape into the host app.
             }
         }
+    }
+
+    private void confirmGboardRestart() {
+        showConfirmDialog(
+                text(R.string.gboard_patches_restart_confirm_title),
+                text(R.string.gboard_patches_restart_confirm_message),
+                text(R.string.gboard_patches_restart_confirm_action),
+                this::requestGboardRestart);
     }
 
     private void requestGboardRestart() {
@@ -2596,7 +2604,7 @@ public final class GboardPatchesSettingsActivity extends Activity
                 fullBleed ? 0 : dp(16),
                 0,
                 fullBleed ? 0 : dp(16),
-                fullBleed ? 0 : dp(24));
+                0);
         ViewGroup.LayoutParams rawPanelParams = panelContainer.getLayoutParams();
         if (rawPanelParams instanceof LinearLayout.LayoutParams panelParams) {
             panelParams.topMargin = fullBleed ? 0 : dp(8);
@@ -3402,20 +3410,14 @@ public final class GboardPatchesSettingsActivity extends Activity
             @Override
             protected void onDraw(Canvas canvas) {
                 super.onDraw(canvas);
-                float density = getResources().getDisplayMetrics().density;
-                float width = getWidth();
-                float height = getHeight();
-                paint.setStyle(Paint.Style.FILL);
-                paint.setColor(palette.accentContainer);
-                canvas.drawCircle(width / 2f, height / 2f, Math.min(width, height) / 2f, paint);
-                float iconSize = density * 22f;
-                paint.setColor(palette.onAccentContainer);
+                float iconSize = getResources().getDisplayMetrics().density * 24f;
+                paint.setColor(palette.textSecondary);
                 GboardMaterialIcons.draw(canvas, paint, path, icon,
-                        (width - iconSize) / 2f, (height - iconSize) / 2f, iconSize);
+                        (getWidth() - iconSize) / 2f, (getHeight() - iconSize) / 2f, iconSize);
             }
         };
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(40), dp(40));
-        params.setMarginEnd(dp(16));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(24), dp(24));
+        params.setMarginEnd(dp(20));
         iconView.setLayoutParams(params);
         iconView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         iconView.setAlpha(rowModel.isEnabled() ? 1f : 0.38f);
@@ -3756,11 +3758,12 @@ public final class GboardPatchesSettingsActivity extends Activity
         return drawable;
     }
 
-    private void showConfirmDialog(String title, String message, Runnable confirmAction) {
+    private void showConfirmDialog(String title, String message, String confirmLabel,
+            Runnable confirmAction) {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(title)
                 .setMessage(message)
-                .setPositiveButton(text(R.string.gboard_patches_confirm_action),
+                .setPositiveButton(confirmLabel,
                         (dialogInterface, which) ->
                         runSafely("confirm settings action", confirmAction))
                 .setNegativeButton(
@@ -3775,6 +3778,11 @@ public final class GboardPatchesSettingsActivity extends Activity
         } catch (Throwable throwable) {
             Log.w(TAG, "Failed to show confirmation dialog", throwable);
         }
+    }
+
+    private void showConfirmDialog(String title, String message, Runnable confirmAction) {
+        showConfirmDialog(title, message, text(R.string.gboard_patches_confirm_action),
+                confirmAction);
     }
 
     private void tintDialogButtons(AlertDialog dialog) {
@@ -3974,7 +3982,7 @@ public final class GboardPatchesSettingsActivity extends Activity
             Roles roles = new Roles();
             if (nightMode) {
                 roles.surfaceContainer = Color.parseColor("#FF1D2024");
-                roles.tile = Color.parseColor("#FF282A2F");
+                roles.tile = Color.parseColor("#FF37393E");
                 roles.surfaceContainerHigh = Color.parseColor("#FF282A2F");
                 roles.surfaceContainerHighest = Color.parseColor("#FF33353A");
                 roles.onSurface = Color.parseColor("#FFE2E2E9");
@@ -4014,9 +4022,7 @@ public final class GboardPatchesSettingsActivity extends Activity
         private static void applySystemRoles(Context context, Roles roles, boolean nightMode) {
             String suffix = nightMode ? "_dark" : "_light";
             roles.surfaceContainer = systemColor(context, "system_surface_container" + suffix);
-            roles.tile = systemColor(context, nightMode
-                    ? "system_surface_container_high_dark"
-                    : "system_surface_bright_light");
+            roles.tile = systemColor(context, "system_surface_bright" + suffix);
             roles.surfaceContainerHigh = systemColor(context, nightMode
                     ? "system_surface_container_high_dark"
                     : "system_surface_container_high_light");

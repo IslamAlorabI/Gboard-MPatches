@@ -21,7 +21,9 @@ public final class GboardPatchesRestartSourceTest {
         Assert.assertTrue(activity.contains("ObjectAnimator.ofFloat("));
         Assert.assertTrue(activity.contains("ValueAnimator.INFINITE"));
         Assert.assertTrue(activity.contains("-360f"));
-        Assert.assertFalse(activity.contains("showRestartDialog"));
+        Assert.assertTrue(activity.contains(
+                "restartButton.setOnClickListener(view -> confirmGboardRestart())"));
+        Assert.assertTrue(activity.contains("this::requestGboardRestart"));
     }
 
     @Test
