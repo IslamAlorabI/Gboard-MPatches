@@ -54,6 +54,11 @@ public final class GboardLanFtpSettingsFeature
     }
 
     @Override
+    public GboardPatchesSettingsContract.RowIcon getEntryIcon() {
+        return GboardPatchesSettingsContract.RowIcon.FILE_TRANSFER;
+    }
+
+    @Override
     public boolean isAvailable(Context context) {
         return GboardPatchesFeatureAvailability.hasFeature(
                 context, GboardPatchesFeatureAvailability.FEATURE_LAN_FTP);

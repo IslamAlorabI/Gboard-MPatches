@@ -65,6 +65,11 @@ public final class GboardClipboardSettingsFeature
         return entrySummary;
     }
 
+    @Override
+    public GboardPatchesSettingsContract.RowIcon getEntryIcon() {
+        return GboardPatchesSettingsContract.RowIcon.CLIPBOARD;
+    }
+
     public GboardPatchesSettingsContract.Feature getWebClipboardFeature() {
         return webClipboardFeature;
     }

@@ -220,6 +220,64 @@ public final class GboardSettingsGroupingTest {
         Assert.assertSame(keyboardGroup, host.openedFeature);
     }
 
+    @Test
+    public void rootScreenShowsLeadingIconsAndRedesignCredit() throws Exception {
+        RecordingHost host = new RecordingHost();
+        FakeFeature feature = new FakeFeature("Clipboard", "Clipboard settings", true);
+        boolean[] redesignOpened = new boolean[1];
+
+        GboardPatchesSettingsContract.Screen rootScreen =
+                GboardPatchesSettingsActivity.createRootScreen(
+                        host,
+                        Collections.singletonList(feature),
+                        "author",
+                        "version",
+                        () -> {
+                        },
+                        () -> {
+                        },
+                        "Islam AlorabI",
+                        () -> redesignOpened[0] = true);
+
+        GboardPatchesSettingsContract.Section aboutSection = rootScreen.getSections().get(1);
+        Assert.assertEquals("About", aboutSection.getTitle());
+        List<GboardPatchesSettingsContract.Row> aboutRows = aboutSection.getItems();
+        Assert.assertEquals(3, aboutRows.size());
+        Assert.assertEquals("Author", aboutRows.get(0).getTitle().toString());
+        Assert.assertEquals("Redesign", aboutRows.get(1).getTitle().toString());
+        Assert.assertEquals("Islam AlorabI", aboutRows.get(1).getSummary());
+        Assert.assertEquals("Patch Version", aboutRows.get(2).getTitle().toString());
+        Assert.assertEquals(GboardPatchesSettingsContract.RowIcon.PERSON,
+                aboutRows.get(0).getLeadingIcon());
+        Assert.assertEquals(GboardPatchesSettingsContract.RowIcon.EDIT,
+                aboutRows.get(1).getLeadingIcon());
+        Assert.assertEquals(GboardPatchesSettingsContract.RowIcon.INFO,
+                aboutRows.get(2).getLeadingIcon());
+        ((GboardPatchesSettingsContract.CommandRow) aboutRows.get(1)).getAction().run();
+        Assert.assertTrue(redesignOpened[0]);
+
+        GboardPatchesSettingsContract.Row featureRow =
+                rootScreen.getSections().get(0).getItems().get(0);
+        Assert.assertEquals(GboardPatchesSettingsContract.RowIcon.NONE,
+                featureRow.getLeadingIcon());
+        GboardPatchesSettingsContract.Row languageRow =
+                rootScreen.getSections().get(2).getItems().get(0);
+        Assert.assertEquals(GboardPatchesSettingsContract.RowIcon.LANGUAGE,
+                languageRow.getLeadingIcon());
+
+        GboardPatchesSettingsContract.Screen withoutCredit =
+                GboardPatchesSettingsActivity.createRootScreen(
+                        host,
+                        Collections.singletonList(feature),
+                        "author",
+                        "version",
+                        () -> {
+                        },
+                        () -> {
+                        });
+        Assert.assertEquals(2, withoutCredit.getSections().get(1).getItems().size());
+    }
+
     private static String readSource(String path) throws Exception {
         return new String(Files.readAllBytes(Path.of(path)), StandardCharsets.UTF_8);
     }

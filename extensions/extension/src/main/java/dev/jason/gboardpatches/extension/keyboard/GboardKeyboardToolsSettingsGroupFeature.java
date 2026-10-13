@@ -59,6 +59,11 @@ public final class GboardKeyboardToolsSettingsGroupFeature
     }
 
     @Override
+    public GboardPatchesSettingsContract.RowIcon getEntryIcon() {
+        return GboardPatchesSettingsContract.RowIcon.KEYBOARD;
+    }
+
+    @Override
     public boolean isAvailable(Context context) {
         return delegate.isAvailable(context);
     }

@@ -55,7 +55,8 @@ public final class GboardPatchesSettingsActivitySourceTest {
                         + "GboardPatchesSettingsActivity.java");
 
         Assert.assertTrue(source.contains("buildSelectorSupportLine("));
-        Assert.assertTrue(source.contains("buildCurrentValueChip("));
+        Assert.assertTrue(source.contains("buildCurrentValueText("));
+        Assert.assertFalse(source.contains("buildCurrentValueChip("));
         Assert.assertTrue(source.contains("R.string.gboard_patches_current_value_label"));
         Assert.assertTrue(source.contains("R.string.gboard_patches_preview_label"));
         Assert.assertTrue(source.contains("R.string.gboard_patches_confirm_action"));

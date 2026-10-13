@@ -42,6 +42,11 @@ public final class GboardDeveloperOptionsSettingsFeature
     }
 
     @Override
+    public GboardPatchesSettingsContract.RowIcon getEntryIcon() {
+        return GboardPatchesSettingsContract.RowIcon.DEVELOPER;
+    }
+
+    @Override
     public boolean isAvailable(Context context) {
         return GboardPatchesFeatureAvailability.hasFeature(
                 context,

@@ -68,6 +68,11 @@ public final class GboardSettingsHomepageSettingsFeature
     }
 
     @Override
+    public GboardPatchesSettingsContract.RowIcon getEntryIcon() {
+        return GboardPatchesSettingsContract.RowIcon.SETTINGS_STYLE;
+    }
+
+    @Override
     public boolean isAvailable(Context context) {
         initializeText(context);
         return GboardPatchesFeatureAvailability.hasFeature(

@@ -40,6 +40,11 @@ public final class GboardBackupRestoreSettingsFeature
     }
 
     @Override
+    public GboardPatchesSettingsContract.RowIcon getEntryIcon() {
+        return GboardPatchesSettingsContract.RowIcon.BACKUP;
+    }
+
+    @Override
     public boolean isAvailable(Context context) {
         return GboardPatchesFeatureAvailability.hasFeature(
                 context,

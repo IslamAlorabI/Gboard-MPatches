@@ -14,6 +14,10 @@ public final class GboardPatchesSettingsContract {
 
         String getEntrySummary();
 
+        default RowIcon getEntryIcon() {
+            return RowIcon.NONE;
+        }
+
         default void openRootEntry(FeatureHost host) {
             openFeature(host, this);
         }
@@ -393,6 +397,23 @@ public final class GboardPatchesSettingsContract {
         DELETE
     }
 
+    /** Leading icon drawn in a tonal circle before a row's text. */
+    public enum RowIcon {
+        NONE,
+        AI_VOICE,
+        KEYBOARD,
+        KEYS,
+        CLIPBOARD,
+        FILE_TRANSFER,
+        SETTINGS_STYLE,
+        BACKUP,
+        DEVELOPER,
+        PERSON,
+        INFO,
+        EDIT,
+        LANGUAGE
+    }
+
     public static final class ToolbarAction {
         private final String contentDescription;
         private final ToolbarIcon icon;
@@ -740,16 +761,23 @@ public final class GboardPatchesSettingsContract {
         private final String summary;
         private final boolean enabled;
         private final PreviewSpec previewSpec;
+        private final RowIcon leadingIcon;
 
         protected Row(CharSequence title, String summary, boolean enabled) {
             this(title, summary, enabled, null);
         }
 
         protected Row(CharSequence title, String summary, boolean enabled, PreviewSpec previewSpec) {
+            this(title, summary, enabled, previewSpec, RowIcon.NONE);
+        }
+
+        protected Row(CharSequence title, String summary, boolean enabled, PreviewSpec previewSpec,
+                RowIcon leadingIcon) {
             this.title = title;
             this.summary = summary;
             this.enabled = enabled;
             this.previewSpec = previewSpec;
+            this.leadingIcon = leadingIcon == null ? RowIcon.NONE : leadingIcon;
         }
 
         public CharSequence getTitle() {
@@ -766,6 +794,10 @@ public final class GboardPatchesSettingsContract {
 
         public PreviewSpec getPreviewSpec() {
             return previewSpec;
+        }
+
+        public RowIcon getLeadingIcon() {
+            return leadingIcon;
         }
     }
 
@@ -805,6 +837,14 @@ public final class GboardPatchesSettingsContract {
         public NavigationRow(CharSequence title, String summary, String trailingText,
                 boolean enabled, Runnable action, PreviewSpec previewSpec) {
             this(title, summary, trailingText, enabled, action, previewSpec, true);
+        }
+
+        public NavigationRow(RowIcon leadingIcon, CharSequence title, String summary,
+                boolean enabled, Runnable action) {
+            super(title, summary, enabled, null, leadingIcon);
+            this.action = action;
+            this.trailingText = null;
+            this.showChevron = true;
         }
 
         public NavigationRow(CharSequence title, String summary, String trailingText,
@@ -865,7 +905,17 @@ public final class GboardPatchesSettingsContract {
 
         public SelectorRow(CharSequence title, String summary, String currentValue,
                 boolean enabled, Runnable action, PreviewSpec previewSpec) {
-            super(title, summary, enabled, previewSpec);
+            this(RowIcon.NONE, title, summary, currentValue, enabled, action, previewSpec);
+        }
+
+        public SelectorRow(RowIcon leadingIcon, CharSequence title, String summary,
+                String currentValue, boolean enabled, Runnable action) {
+            this(leadingIcon, title, summary, currentValue, enabled, action, null);
+        }
+
+        private SelectorRow(RowIcon leadingIcon, CharSequence title, String summary,
+                String currentValue, boolean enabled, Runnable action, PreviewSpec previewSpec) {
+            super(title, summary, enabled, previewSpec, leadingIcon);
             this.currentValue = currentValue;
             this.action = action;
         }
@@ -906,6 +956,12 @@ public final class GboardPatchesSettingsContract {
         public CommandRow(CharSequence title, String summary, boolean enabled, Runnable action,
                 PreviewSpec previewSpec) {
             super(title, summary, enabled, previewSpec);
+            this.action = action;
+        }
+
+        public CommandRow(RowIcon leadingIcon, CharSequence title, String summary,
+                boolean enabled, Runnable action) {
+            super(title, summary, enabled, null, leadingIcon);
             this.action = action;
         }
 

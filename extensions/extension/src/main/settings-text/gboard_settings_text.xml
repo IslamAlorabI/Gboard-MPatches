@@ -152,6 +152,10 @@
         <translation locale="en">Author</translation>
         <translation locale="zh-Hant">作者</translation>
     </string>
+    <string name="gboard_patches_about_redesign_title">
+        <translation locale="en">Redesign</translation>
+        <translation locale="zh-Hant">介面重新設計</translation>
+    </string>
     <string name="gboard_patches_about_patch_version_title">
         <translation locale="en">Patch Version</translation>
         <translation locale="zh-Hant">Patch 版本</translation>

@@ -45,6 +45,11 @@ public final class GboardAiVoiceSettingsGroupFeature
     }
 
     @Override
+    public GboardPatchesSettingsContract.RowIcon getEntryIcon() {
+        return GboardPatchesSettingsContract.RowIcon.AI_VOICE;
+    }
+
+    @Override
     public boolean isAvailable(Context context) {
         return delegate.isAvailable(context);
     }
