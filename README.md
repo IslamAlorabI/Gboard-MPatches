@@ -1,29 +1,27 @@
-<h1 align="center">Gboard Patches</h1>
+<h1 align="center">GBoard Patches</h1>
 
 <p align="center">
-  Morphe patches for Gboard with a mix of global improvements and Taiwan-focused enhancements.
+  Morphe patches for GBoard with a mix of global improvements and Taiwan-focused enhancements.
 </p>
 
 <p align="center">
-  <a href="https://github.com/jasonwu1994/Gboard-patches/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/jasonwu1994/Gboard-patches?display_name=tag&label=Release&style=for-the-badge"></a>
-  <a href="https://github.com/jasonwu1994/Gboard-patches"><img alt="Total downloads" src="https://img.shields.io/github/downloads/jasonwu1994/Gboard-patches/total?label=Downloads&style=for-the-badge"></a>
-  <a href="https://morphe.software/add-source?github=jasonwu1994/Gboard-patches"><img alt="Add to Morphe" src="https://img.shields.io/badge/Morphe-Add%20Source-00A8FF?style=for-the-badge"></a>
-  <a href="https://github.com/jasonwu1994/Gboard-patches"><img alt="GitHub stars" src="https://img.shields.io/github/stars/jasonwu1994/Gboard-patches?style=social"></a>
-</p>
-
-<p align="center">
-  <a href="https://ko-fi.com/jasonwu1994"><img height="40" alt="Buy me a coffee on Ko-fi" src="https://storage.ko-fi.com/cdn/kofi5.png?v=3"></a>
+  <a href="https://github.com/IslamAlorabI/Gboard-MPatches/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/IslamAlorabI/Gboard-MPatches?display_name=tag&label=Release&style=for-the-badge"></a>
+  <a href="https://github.com/IslamAlorabI/Gboard-MPatches"><img alt="Total downloads" src="https://img.shields.io/github/downloads/IslamAlorabI/Gboard-MPatches/total?label=Downloads&style=for-the-badge"></a>
+  <a href="https://morphe.software/add-source?github=IslamAlorabI/Gboard-MPatches"><img alt="Add to Morphe" src="https://img.shields.io/badge/Morphe-Add%20Source-00A8FF?style=for-the-badge"></a>
+  <a href="https://github.com/IslamAlorabI/Gboard-MPatches"><img alt="GitHub stars" src="https://img.shields.io/github/stars/IslamAlorabI/Gboard-MPatches?style=social"></a>
 </p>
 
 ## Overview
 
-Gboard Patches is a public Morphe source for a curated set of Gboard enhancements, including both global usability improvements and Taiwan-focused features for local input habits and day-to-day use.
+> This is a fork of [jasonwu1994/GBoard-patches](https://github.com/jasonwu1994/Gboard-patches). It adds a Material 3 Expressive redesign of the Patches settings page by [Islam AlorabI](https://github.com/IslamAlorabI): Material You colors, grouped tiles, a collapsing title and Material 3 switches, matching GBoard's own settings.
+
+GBoard Patches is a public Morphe source for a curated set of GBoard enhancements, including both global usability improvements and Taiwan-focused features for local input habits and day-to-day use.
 
 ## Included Patches
 
 ### Project-Built Features
 
-Features designed and built by this project rather than simply unlocking an existing Gboard flag.
+Features designed and built by this project rather than simply unlocking an existing GBoard flag.
 
 <details>
   <summary><code>Clipboard Enhancements</code></summary>
@@ -34,7 +32,7 @@ Features designed and built by this project rather than simply unlocking an exis
 <details>
   <summary><code>Web Clipboard</code></summary>
 
-  Hosts a phone-powered Web Clipboard portal that lets desktop browsers sync with Gboard over the same LAN, with a pairing code gate and an optional Quick Settings Tile.
+  Hosts a phone-powered Web Clipboard portal that lets desktop browsers sync with GBoard over the same LAN, with a pairing code gate and an optional Quick Settings Tile.
 
   Preview:
 
@@ -47,7 +45,7 @@ Features designed and built by this project rather than simply unlocking an exis
 <details>
   <summary><code>Floating Web Search</code></summary>
 
-  Open a floating web page directly from Gboard to quickly search for the information you need.
+  Open a floating web page directly from GBoard to quickly search for the information you need.
 </details>
 
 <details>
@@ -102,7 +100,7 @@ Import custom ZIP themes and beautiful themes from the official Rboard repositor
 <details>
   <summary><code>Simple Calculator</code></summary>
 
-  Adds an optional inline calculator for arithmetic expressions typed in any text field. The result appears in Gboard's suggestion row; tap it to replace the expression, or long-press it to copy the result.
+  Adds an optional inline calculator for arithmetic expressions typed in any text field. The result appears in GBoard's suggestion row; tap it to replace the expression, or long-press it to copy the result.
 </details>
 
 <details>
@@ -126,19 +124,19 @@ Import custom ZIP themes and beautiful themes from the official Rboard repositor
 <details>
   <summary><code>Emojis, stickers & GIFs Tab Order</code></summary>
 
-Customize the bottom tab order in Gboard's Emojis, stickers & GIFs panel with drag-and-drop reordering.
+Customize the bottom tab order in GBoard's Emojis, stickers & GIFs panel with drag-and-drop reordering.
 </details>
 
 <details>
   <summary><code>Backup &amp; Restore</code></summary>
 
-  Exports all Gboard Patches settings to a portable JSON backup and restores only the modules you select, with per-module and per-key results. It also exports, compares, and restores Gboard's raw PB/XML flag-store files.
+  Exports all GBoard Patches settings to a portable JSON backup and restores only the modules you select, with per-module and per-key results. It also exports, compares, and restores GBoard's raw PB/XML flag-store files.
 </details>
 
 
-### Gboard Feature Unlocks
+### GBoard Feature Unlocks
 
-Features already present in Gboard that are exposed by enabling hidden settings, rollout gates, or built-in behavior.
+Features already present in GBoard that are exposed by enabling hidden settings, rollout gates, or built-in behavior.
 
 <details>
   <summary><code>AI Writing Tools</code></summary>
@@ -197,7 +195,7 @@ Features already present in Gboard that are exposed by enabling hidden settings,
 <details>
   <summary><code>Change emoji size</code></summary>
 
-  Enables Gboard's emoji size setting.
+  Enables GBoard's emoji size setting.
 </details>
 
 <details>
@@ -209,7 +207,7 @@ Features already present in Gboard that are exposed by enabling hidden settings,
 <details>
   <summary><code>Enable split keyboard</code></summary>
 
-  Enables Gboard's split keyboard layout.
+  Enables GBoard's split keyboard layout.
 </details>
 
 <details>
@@ -239,7 +237,7 @@ Shows a dismiss button in the proactive suggestions bar.
 <details>
   <summary><code>Clipboard Custom Character Limit</code></summary>
 
-  Lets you set the maximum number of characters stored for each text clipboard item, with Gboard's stock 20,000-character limit as the default.
+  Lets you set the maximum number of characters stored for each text clipboard item, with GBoard's stock 20,000-character limit as the default.
 </details>
 
 <details>
@@ -257,7 +255,7 @@ Shows a dismiss button in the proactive suggestions bar.
 <details>
   <summary><code>Settings Homepage Override</code></summary>
 
-  Lets you switch between the new and legacy Gboard settings homepage styles.
+  Lets you switch between the new and legacy GBoard settings homepage styles.
 </details>
 
 <details>
@@ -269,7 +267,7 @@ Shows a dismiss button in the proactive suggestions bar.
 <details>
   <summary><code>Package Rename</code></summary>
 
-  Renames the patched package so it can be installed alongside the official Gboard app.
+  Renames the patched package so it can be installed alongside the official GBoard app.
 </details>
 
 ### Taiwan-focused Features
@@ -298,8 +296,8 @@ Features tailored to Traditional Chinese and Zhuyin input workflows.
 
 Add this repository as a Morphe source:
 
-- [Open in Morphe](https://morphe.software/add-source?github=jasonwu1994/Gboard-patches)
-- Or manually add `https://github.com/jasonwu1994/Gboard-patches`
+- [Open in Morphe](https://morphe.software/add-source?github=IslamAlorabI/Gboard-MPatches)
+- Or manually add `https://github.com/IslamAlorabI/Gboard-MPatches`
 
 ## Build
 
@@ -325,6 +323,11 @@ Generated outputs:
 - `patches/build/libs/*.mpp`
 - `patches-list.json`
 - `patches-bundle.json`
+
+## Credits
+
+- Original patches: [Jason Wu](https://github.com/jasonwu1994) ([support on Ko-fi](https://ko-fi.com/jasonwu1994))
+- Settings redesign: [Islam AlorabI](https://github.com/IslamAlorabI)
 
 ## License
 
