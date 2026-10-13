@@ -4124,54 +4124,28 @@ public final class GboardPatchesSettingsActivity extends Activity
 
     private Typeface headlineTypeface() {
         if (headlineTypeface == null) {
-            headlineTypeface = themeTypeface(deviceDefaultHeadlineAppearance(), 400);
+            headlineTypeface = googleSansFlexTypeface(400);
         }
         return headlineTypeface;
     }
 
     private Typeface bodyTypeface() {
         if (bodyTypeface == null) {
-            bodyTypeface = themeTypeface(android.R.style.TextAppearance_DeviceDefault, 400);
+            bodyTypeface = googleSansFlexTypeface(400);
         }
         return bodyTypeface;
     }
 
     private Typeface mediumTypeface() {
         if (mediumTypeface == null) {
-            mediumTypeface = themeTypeface(android.R.style.TextAppearance_DeviceDefault, 500);
+            mediumTypeface = googleSansFlexTypeface(500);
         }
         return mediumTypeface;
     }
 
-    // Looked up by name: the headline appearance is newer than the compile SDK may be.
-    @SuppressLint("DiscouragedApi")
-    private int deviceDefaultHeadlineAppearance() {
-        int headline = getResources().getIdentifier(
-                "TextAppearance.DeviceDefault.Headline", "style", "android");
-        return headline != 0 ? headline : android.R.style.TextAppearance_DeviceDefault_Large;
-    }
-
-    /** Uses Google Sans where the device ships it (Pixel), otherwise the default sans serif. */
-    /**
-     * Uses the font of the system's DeviceDefault text styles, so the page follows the device
-     * font (Google Sans on Pixel) like Gboard's own settings.
-     */
-    private Typeface themeTypeface(int textAppearance, int weight) {
-        Typeface base = null;
-        try {
-            TextView probe = new TextView(this);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                probe.setTextAppearance(textAppearance);
-            } else {
-                probe.setTextAppearance(this, textAppearance);
-            }
-            base = probe.getTypeface();
-        } catch (Throwable throwable) {
-            Log.w(TAG, "Failed to resolve the system font", throwable);
-        }
-        if (base == null) {
-            base = Typeface.DEFAULT;
-        }
+    /** Uses Pixel's Google Sans Flex system family; Android falls back when it is unavailable. */
+    private Typeface googleSansFlexTypeface(int weight) {
+        Typeface base = Typeface.create("google-sans-flex", Typeface.NORMAL);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             return Typeface.create(base, weight, false);
         }
