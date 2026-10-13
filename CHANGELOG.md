@@ -1,3 +1,18 @@
+## [3.13.0](https://github.com/IslamAlorabI/Gboard-MPatches/compare/v3.12.2...v3.13.0) (2026-10-13)
+
+### ✨ New Features
+
+* **Settings:** the Patches page follows the system font, and shows a "Restart Gboard to apply" banner after you change a setting that needs a restart.
+
+### 🔒 Security
+
+* **Web Clipboard:** pairing codes are now 6 digits, repeated wrong codes are slowed down, and each install creates its own HTTPS key instead of sharing one built-in key. Existing 4-digit codes are replaced with a new 6-digit code.
+* **FTP Server:** new setups default to password login and read-only access.
+
+### 🐛 Bug Fixes
+
+* **Gboard:** fix an issue where the `Frosted Glass` patch could cause the keyboard to crash when entering the password upon device startup (Direct Boot). From upstream [jasonwu1994/Gboard-patches@4916880](https://github.com/jasonwu1994/Gboard-patches/commit/49168805580468e9c467bf557189b5ba3051b579).
+
 ## [3.12.0](https://github.com/jasonwu1994/Gboard-patches/compare/v3.11.0...v3.12.0) (2026-10-04)
 
 ### ✨ New Features

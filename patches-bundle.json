@@ -1,7 +1,7 @@
 {
     "created_at": "2026-10-13T00:00:00",
-    "description": "### 🛠 Fixes\n\n* **Settings:** cards and icons now match Gboard's own settings, less empty space below the last card, and restarting Gboard from the top bar asks for confirmation.",
-    "download_url": "https://github.com/IslamAlorabI/Gboard-MPatches/releases/download/v3.12.2/patches-3.12.2.mpp",
+    "description": "### ✨ New\n\n* **Settings:** follows the system font, and shows a \"Restart Gboard to apply\" banner after changing settings that need a restart.\n\n### 🔒 Security\n\n* **Web Clipboard:** 6-digit pairing codes, slower guessing after wrong codes, and a unique HTTPS key per install.\n* **FTP Server:** new setups default to password login and read-only access.\n\n### 🐛 Fixes\n\n* **Frosted Glass:** fix a keyboard crash when entering the password at device startup (from upstream).",
+    "download_url": "https://github.com/IslamAlorabI/Gboard-MPatches/releases/download/v3.13.0/patches-3.13.0.mpp",
     "signature_download_url": "",
-    "version": "3.12.2"
+    "version": "3.13.0"
 }

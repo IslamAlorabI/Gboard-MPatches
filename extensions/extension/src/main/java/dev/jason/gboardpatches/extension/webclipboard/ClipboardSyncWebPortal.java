@@ -12,11 +12,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,6 +54,7 @@ public final class ClipboardSyncWebPortal {
     private final WebClipboardEchoSuppressor webEchoSuppressor =
             new WebClipboardEchoSuppressor(WEB_ECHO_SUPPRESSION_WINDOW_MS);
 
+    private final PairingAttemptLimiter pairingAttemptLimiter = new PairingAttemptLimiter();
     private ServerSocket serverSocket;
     private ServerSocket httpsServerSocket;
     private Thread acceptThread;
@@ -557,7 +560,7 @@ public final class ClipboardSyncWebPortal {
                         buildStatusJson(request, socket));
                 return;
             }
-            if (requiresPairing(request, socket) && !isAuthorized(request)) {
+            if (requiresPairing(request, socket) && !isAuthorized(request, socket)) {
                 writeResponse(socket, 401, "Unauthorized", "application/json; charset=utf-8",
                         "{\"ok\":false,\"error\":\"pairing_required\"}");
                 return;
@@ -686,7 +689,7 @@ public final class ClipboardSyncWebPortal {
                 || "/phone-clipboard".equals(request.path);
     }
 
-    private boolean isAuthorized(Request request) {
+    private boolean isAuthorized(Request request, Socket socket) {
         if (!securityConfig.pairingRequired) {
             return true;
         }
@@ -706,8 +709,25 @@ public final class ClipboardSyncWebPortal {
         if (suppliedCode.isBlank()) {
             return false;
         }
-        return securityConfig.pairingCode.equals(
-                WebClipboardPreferences.sanitizePairingCode(suppliedCode));
+        InetAddress peerAddress = socket == null ? null : socket.getInetAddress();
+        boolean limited = peerAddress == null || !peerAddress.isLoopbackAddress();
+        String peer = peerAddress == null ? "unknown" : peerAddress.getHostAddress();
+        long nowMs = System.currentTimeMillis();
+        if (limited && pairingAttemptLimiter.isLockedOut(peer, nowMs)) {
+            return false;
+        }
+        boolean matches = MessageDigest.isEqual(
+                securityConfig.pairingCode.getBytes(StandardCharsets.UTF_8),
+                WebClipboardPreferences.sanitizePairingCode(suppliedCode)
+                        .getBytes(StandardCharsets.UTF_8));
+        if (limited) {
+            if (matches) {
+                pairingAttemptLimiter.recordSuccess(peer);
+            } else {
+                pairingAttemptLimiter.recordFailure(peer, nowMs);
+            }
+        }
+        return matches;
     }
 
     private boolean isLoopbackIngressAuthorized(Request request) {
@@ -820,13 +840,13 @@ public final class ClipboardSyncWebPortal {
 
     private String buildStatusJson(Request request, Socket socket) {
         JSONObject payload = new JSONObject();
-        boolean authorized = isAuthorized(request);
+        boolean authorized = isAuthorized(request, socket);
         synchronized (clientsLock) {
             try {
                 payload.put("ok", true);
                 payload.put("pairingRequired", securityConfig.pairingRequired);
                 payload.put("pairingVerified", authorized);
-                payload.put("codeLength", 4);
+                payload.put("codeLength", WebClipboardPreferences.PAIRING_CODE_LENGTH);
                 payload.put("httpPort", getPort());
                 payload.put("httpsPort", getHttpsPort());
                 payload.put("clients",
@@ -838,7 +858,9 @@ public final class ClipboardSyncWebPortal {
                     payload.put(ClipboardSyncLoopbackAuth.PROOF_FIELD, loopbackProof);
                 }
             } catch (Throwable ignored) {
-                return "{\"ok\":false,\"pairingRequired\":true,\"pairingVerified\":false,\"codeLength\":4,\"clients\":[]}";
+                return "{\"ok\":false,\"pairingRequired\":true,\"pairingVerified\":false,"
+                        + "\"codeLength\":" + WebClipboardPreferences.PAIRING_CODE_LENGTH
+                        + ",\"clients\":[]}";
             }
         }
         return payload.toString();

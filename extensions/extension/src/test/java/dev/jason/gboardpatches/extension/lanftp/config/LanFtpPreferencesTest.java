@@ -78,7 +78,7 @@ public final class LanFtpPreferencesTest {
     }
 
     @Test
-    public void defaultsAreDisabledWritableAnonymousAndBounded() {
+    public void defaultsAreDisabledReadOnlyPasswordProtectedAndBounded() {
         InMemorySharedPreferences preferences = new InMemorySharedPreferences();
 
         LanFtpPreferences.ensureDefaults(preferences);
@@ -87,8 +87,8 @@ public final class LanFtpPreferencesTest {
         Assert.assertFalse(snapshot.enabled);
         Assert.assertEquals(2121, snapshot.controlPort);
         Assert.assertEquals("file:///sdcard", snapshot.rootTreeUri);
-        Assert.assertFalse(snapshot.readOnly);
-        Assert.assertTrue(snapshot.allowAnonymous);
+        Assert.assertTrue(snapshot.readOnly);
+        Assert.assertFalse(snapshot.allowAnonymous);
         Assert.assertEquals("gboard", snapshot.username);
         Assert.assertTrue(snapshot.password.matches("[a-z]{6}"));
         Assert.assertEquals(50000, snapshot.passivePortStart);
@@ -114,7 +114,7 @@ public final class LanFtpPreferencesTest {
         Assert.assertEquals(2121, snapshot.controlPort);
         Assert.assertEquals("file:///sdcard", snapshot.rootTreeUri);
         Assert.assertTrue(snapshot.readOnly);
-        Assert.assertTrue(snapshot.allowAnonymous);
+        Assert.assertFalse(snapshot.allowAnonymous);
         Assert.assertEquals("gboard", snapshot.username);
         Assert.assertTrue(snapshot.password.matches("[a-z]{6}"));
     }

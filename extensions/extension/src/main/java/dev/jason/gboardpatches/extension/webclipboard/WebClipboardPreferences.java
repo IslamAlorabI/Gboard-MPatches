@@ -21,7 +21,8 @@ public final class WebClipboardPreferences {
     public static final int DEFAULT_PORT = 8080;
     public static final boolean DEFAULT_RUNTIME_ACTIVE = false;
     public static final boolean DEFAULT_PAIRING_REQUIRED = true;
-    public static final String DEFAULT_PAIRING_CODE = "0000";
+    public static final int PAIRING_CODE_LENGTH = 6;
+    public static final String DEFAULT_PAIRING_CODE = "000000";
     public static final String DEFAULT_LOOPBACK_INGRESS_TOKEN = "";
 
     private static final int LOOPBACK_INGRESS_TOKEN_BYTES = 32;
@@ -70,6 +71,11 @@ public final class WebClipboardPreferences {
         if (!(rawPairingCode instanceof String)
                 && DEFAULT_PAIRING_REQUIRED
                 && DEFAULT_PAIRING_CODE.equals(pairingCode)) {
+            pairingCode = nextPairingCode();
+        }
+        // Codes saved before pairing codes grew to six digits get a fresh code.
+        if (rawPairingCode instanceof String
+                && !isCurrentPairingCodeFormat((String) rawPairingCode)) {
             pairingCode = nextPairingCode();
         }
         if (!(rawPairingCode instanceof String) || !pairingCode.equals(rawPairingCode)) {
@@ -248,13 +254,17 @@ public final class WebClipboardPreferences {
         if (digits.length() == 0) {
             return DEFAULT_PAIRING_CODE;
         }
-        while (digits.length() < 4) {
+        while (digits.length() < PAIRING_CODE_LENGTH) {
             digits.insert(0, '0');
         }
-        if (digits.length() > 4) {
-            return digits.substring(digits.length() - 4);
+        if (digits.length() > PAIRING_CODE_LENGTH) {
+            return digits.substring(digits.length() - PAIRING_CODE_LENGTH);
         }
         return digits.toString();
+    }
+
+    public static boolean isCurrentPairingCodeFormat(String code) {
+        return code != null && code.matches("\\d{" + PAIRING_CODE_LENGTH + "}");
     }
 
     private static SharedPreferences.Editor ensureEditor(SharedPreferences.Editor editor,
@@ -287,7 +297,7 @@ public final class WebClipboardPreferences {
     }
 
     private static String nextPairingCode() {
-        return String.format(Locale.US, "%04d", PAIRING_CODE_RANDOM.nextInt(10_000));
+        return String.format(Locale.US, "%06d", PAIRING_CODE_RANDOM.nextInt(1_000_000));
     }
 
     private static String nextLoopbackIngressToken() {

@@ -286,6 +286,7 @@ public final class ClipboardSyncService extends Service {
                         pairingCode,
                         loopbackIngressToken));
         try {
+            ClipboardSyncHttpsSocketFactory.useKeyStoreDirectory(getNoBackupFilesDir());
             portal.start();
             webPortal = portal;
             activePortal = portal;

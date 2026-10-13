@@ -208,6 +208,10 @@
         <translation locale="en">Restart</translation>
         <translation locale="zh-Hant">重新啟動</translation>
     </string>
+    <string name="gboard_patches_restart_banner_message">
+        <translation locale="en">Restart Gboard to apply your changes.</translation>
+        <translation locale="zh-Hant">重新啟動 Gboard 以套用變更。</translation>
+    </string>
     <string name="gboard_patches_restart_failed">
         <translation locale="en">Gboard could not be restarted. Reopen Gboard settings and try again.</translation>
         <translation locale="zh-Hant">無法重新啟動 Gboard。請重新開啟 Gboard 設定後再試一次。</translation>
@@ -1427,16 +1431,16 @@
         <translation locale="zh-Hant">已連線的用戶端</translation>
     </string>
     <string name="gboard_patches_web_clipboard_pairing_error">
-        <translation locale="en">Enter a 4-digit code.</translation>
-        <translation locale="zh-Hant">請輸入 4 位數配對碼。</translation>
+        <translation locale="en">Enter a 6-digit code.</translation>
+        <translation locale="zh-Hant">請輸入 6 位數配對碼。</translation>
     </string>
     <string name="gboard_patches_web_clipboard_pairing_summary">
-        <translation locale="en">Default is on. Desktop browsers must enter a simple 4-digit code before they can sync unless you turn this off.</translation>
-        <translation locale="zh-Hant">預設為開啟。桌面瀏覽器在同步前必須輸入簡單的 4 位數配對碼，除非你關閉這個選項。</translation>
+        <translation locale="en">Default is on. Desktop browsers must enter a 6-digit code before they can sync unless you turn this off.</translation>
+        <translation locale="zh-Hant">預設為開啟。桌面瀏覽器在同步前必須輸入 6 位數配對碼，除非你關閉這個選項。</translation>
     </string>
     <string name="gboard_patches_web_clipboard_pairing_code_summary_on">
-        <translation locale="en">Desktop users enter this 4-digit code or open a URL that includes ?code=%1$s.</translation>
-        <translation locale="zh-Hant">桌面使用者必須輸入這組 4 位數配對碼，或開啟包含 ?code=%1$s 的網址。</translation>
+        <translation locale="en">Desktop users enter this 6-digit code or open a URL that includes ?code=%1$s.</translation>
+        <translation locale="zh-Hant">桌面使用者必須輸入這組 6 位數配對碼，或開啟包含 ?code=%1$s 的網址。</translation>
     </string>
     <string name="gboard_patches_web_clipboard_pairing_code_summary_off">
         <translation locale="en">Pairing is off; this code is only used after you enable the switch.</translation>
@@ -1451,8 +1455,8 @@
         <translation locale="zh-Hant">重新產生配對碼</translation>
     </string>
     <string name="gboard_patches_web_clipboard_regenerate_code_summary">
-        <translation locale="en">Create a new 4-digit code and restart the portal if it is running.</translation>
-        <translation locale="zh-Hant">建立新的 4 位數配對碼，並在入口正在執行時重新啟動服務。</translation>
+        <translation locale="en">Create a new 6-digit code and restart the portal if it is running.</translation>
+        <translation locale="zh-Hant">建立新的 6 位數配對碼，並在入口正在執行時重新啟動服務。</translation>
     </string>
     <string name="gboard_patches_web_clipboard_no_clients">
         <translation locale="en">No browser clients are connected.</translation>

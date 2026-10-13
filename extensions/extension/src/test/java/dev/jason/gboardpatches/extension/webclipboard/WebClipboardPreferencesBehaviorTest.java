@@ -23,7 +23,7 @@ public final class WebClipboardPreferencesBehaviorTest {
         WebClipboardPreferences.setPort(preferences, 9000);
         WebClipboardPreferences.setRuntimeActive(preferences, true);
         WebClipboardPreferences.setPairingRequired(preferences, true);
-        WebClipboardPreferences.setPairingCode(preferences, "1234");
+        WebClipboardPreferences.setPairingCode(preferences, "123456");
         WebClipboardPreferences.setLoopbackIngressToken(preferences, LOOPBACK_TOKEN);
 
         Assert.assertEquals(6, preferences.commitCount);
@@ -31,7 +31,7 @@ public final class WebClipboardPreferencesBehaviorTest {
         Assert.assertTrue(WebClipboardPreferences.readEnabled(preferences));
         Assert.assertEquals(9000, WebClipboardPreferences.readPort(preferences));
         Assert.assertTrue(WebClipboardPreferences.readRuntimeActive(preferences));
-        Assert.assertEquals("1234", WebClipboardPreferences.getPairingCode(preferences));
+        Assert.assertEquals("123456", WebClipboardPreferences.getPairingCode(preferences));
         Assert.assertEquals(LOOPBACK_TOKEN,
                 WebClipboardPreferences.getLoopbackIngressToken(preferences));
     }
@@ -60,12 +60,28 @@ public final class WebClipboardPreferencesBehaviorTest {
         WebClipboardPreferences.ensureDefaults(preferences);
 
         Assert.assertTrue(WebClipboardPreferences.isPairingRequired(preferences));
-        Assert.assertTrue(WebClipboardPreferences.getPairingCode(preferences).matches("\\d{4}"));
+        Assert.assertTrue(WebClipboardPreferences.getPairingCode(preferences).matches("\\d{6}"));
         Assert.assertNotEquals(
                 WebClipboardPreferences.DEFAULT_PAIRING_CODE,
                 WebClipboardPreferences.getPairingCode(preferences));
         Assert.assertTrue(
                 WebClipboardPreferences.getLoopbackIngressToken(preferences).length() >= 32);
+    }
+
+    @Test
+    public void ensureDefaultsReplacesLegacyFourDigitPairingCode() {
+        CountingSharedPreferences preferences = new CountingSharedPreferences();
+        preferences.edit()
+                .putString(WebClipboardPreferences.PREF_KEY_PAIRING_CODE, "1234")
+                .commit();
+
+        WebClipboardPreferences.ensureDefaults(preferences);
+
+        String code = WebClipboardPreferences.getPairingCode(preferences);
+        Assert.assertTrue(code.matches("\\d{6}"));
+        Assert.assertNotEquals("001234", code);
+        Assert.assertTrue(WebClipboardPreferences.isCurrentPairingCodeFormat(code));
+        Assert.assertFalse(WebClipboardPreferences.isCurrentPairingCodeFormat("1234"));
     }
 
     @Test

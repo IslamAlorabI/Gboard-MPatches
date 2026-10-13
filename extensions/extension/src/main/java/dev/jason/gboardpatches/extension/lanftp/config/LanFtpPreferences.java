@@ -56,8 +56,8 @@ public final class LanFtpPreferences {
     public static final int DEFAULT_CONTROL_PORT = 2121;
     public static final String SHARED_STORAGE_ROOT_URI = "file:///sdcard";
     public static final String DEFAULT_ROOT_TREE_URI = SHARED_STORAGE_ROOT_URI;
-    public static final boolean DEFAULT_READ_ONLY = false;
-    public static final boolean DEFAULT_ALLOW_ANONYMOUS = true;
+    public static final boolean DEFAULT_READ_ONLY = true;
+    public static final boolean DEFAULT_ALLOW_ANONYMOUS = false;
     public static final String DEFAULT_USERNAME = LanFtpCredentialPolicy.USERNAME;
     public static final int DEFAULT_PASSIVE_PORT_START = 50000;
     public static final int DEFAULT_PASSIVE_PORT_END = 50009;

@@ -88,26 +88,26 @@ public final class WebClipboardTileControllerTest {
     }
 
     @Test
-    public void pairingCodeIsRequiredByDefaultAndUsesFourDigitsWhenEnabled() {
+    public void pairingCodeIsRequiredByDefaultAndUsesSixDigitsWhenEnabled() {
         InMemorySharedPreferences preferences = new InMemorySharedPreferences();
 
         Assert.assertTrue(WebClipboardPreferences.isPairingRequired(preferences));
-        Assert.assertTrue(WebClipboardPreferences.getPairingCode(preferences).matches("\\d{4}"));
+        Assert.assertTrue(WebClipboardPreferences.getPairingCode(preferences).matches("\\d{6}"));
 
         WebClipboardPreferences.setPairingRequired(preferences, true);
         WebClipboardPreferences.setPairingCode(preferences, "42");
 
         Assert.assertTrue(WebClipboardPreferences.isPairingRequired(preferences));
-        Assert.assertEquals("0042", WebClipboardPreferences.getPairingCode(preferences));
+        Assert.assertEquals("000042", WebClipboardPreferences.getPairingCode(preferences));
     }
 
     @Test
-    public void regeneratingPairingCodeStoresFourDigitNumericCode() {
+    public void regeneratingPairingCodeStoresSixDigitNumericCode() {
         InMemorySharedPreferences preferences = new InMemorySharedPreferences();
 
         String code = WebClipboardPreferences.regeneratePairingCode(preferences);
 
-        Assert.assertTrue(code.matches("\\d{4}"));
+        Assert.assertTrue(code.matches("\\d{6}"));
         Assert.assertEquals(code, WebClipboardPreferences.getPairingCode(preferences));
     }
 

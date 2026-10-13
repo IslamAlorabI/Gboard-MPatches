@@ -146,6 +146,8 @@ public final class GboardPatchesSettingsActivity extends Activity
     private Typeface bodyTypeface;
     private Typeface mediumTypeface;
     private boolean toolbarTitleCollapsed;
+    private boolean restartRecommended;
+    private boolean currentScreenMentionsRestart;
     private View headerCardView;
     private TextView headerTitleView;
     private TextView headerSummaryView;
@@ -465,6 +467,7 @@ public final class GboardPatchesSettingsActivity extends Activity
                                     customAction.run();
                                 } else {
                                     valueConsumer.accept(selectedValue);
+                                    markSettingsChanged();
                                     renderCurrentScreenSafely();
                                 }
                             });
@@ -528,7 +531,10 @@ public final class GboardPatchesSettingsActivity extends Activity
                 }
                 pendingAction[0] = () -> runSafely(
                         "handle multi-choice dialog selection",
-                        () -> valueConsumer.accept(chosen));
+                        () -> {
+                            valueConsumer.accept(chosen);
+                            markSettingsChanged();
+                        });
                 dialog.dismiss();
             });
         });
@@ -582,6 +588,7 @@ public final class GboardPatchesSettingsActivity extends Activity
                 }
                 try {
                     consumer.accept(value);
+                    markSettingsChanged();
                     dialog.dismiss();
                     renderCurrentScreenSafely();
                 } catch (IllegalArgumentException exception) {
@@ -633,6 +640,7 @@ public final class GboardPatchesSettingsActivity extends Activity
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
                 try {
                     consumer.accept(input.getText() == null ? "" : input.getText().toString());
+                    markSettingsChanged();
                     dialog.dismiss();
                     renderCurrentScreenSafely();
                 } catch (IllegalArgumentException exception) {
@@ -1709,6 +1717,78 @@ public final class GboardPatchesSettingsActivity extends Activity
                 this::requestGboardRestart);
     }
 
+    /** Called after a setting changes; screens that say a restart is needed show a banner. */
+    private void markSettingsChanged() {
+        if (currentScreenMentionsRestart) {
+            restartRecommended = true;
+        }
+    }
+
+    private boolean screenMentionsRestart(GboardPatchesSettingsContract.Screen screen) {
+        List<String> texts = new ArrayList<String>();
+        texts.add(screen.getHeaderSummary());
+        for (GboardPatchesSettingsContract.StatusBlock block : screen.getStatusBlocks()) {
+            texts.add(block.getSummary());
+        }
+        for (GboardPatchesSettingsContract.Section section : screen.getSections()) {
+            texts.add(section.getDescription());
+            for (GboardPatchesSettingsContract.Row row : section.getItems()) {
+                texts.add(row.getSummary());
+            }
+        }
+        String marker = text(R.string.gboard_patches_restart_action).toLowerCase(Locale.ROOT);
+        for (String value : texts) {
+            if (value == null) {
+                continue;
+            }
+            String normalized = value.toLowerCase(Locale.ROOT);
+            if (normalized.contains(marker) || normalized.contains("restart gboard")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private View createRestartBanner() {
+        LinearLayout banner = new LinearLayout(this);
+        banner.setOrientation(LinearLayout.HORIZONTAL);
+        banner.setGravity(Gravity.CENTER_VERTICAL);
+        banner.setBackground(buildCardDrawable(
+                palette.secondaryContainer,
+                Color.TRANSPARENT,
+                dp(TILE_OUTER_RADIUS_DP)));
+        banner.setPadding(dp(16), dp(8), dp(8), dp(8));
+        banner.setMinimumHeight(dp(56));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.topMargin = dp(12);
+        banner.setLayoutParams(params);
+
+        TextView messageView = new TextView(this);
+        messageView.setText(text(R.string.gboard_patches_restart_banner_message));
+        messageView.setTextColor(palette.onSecondaryContainer);
+        messageView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+        messageView.setTypeface(bodyTypeface());
+        banner.addView(messageView, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView restartView = new TextView(this);
+        restartView.setText(text(R.string.gboard_patches_restart_confirm_action));
+        restartView.setTextColor(palette.onSecondaryContainer);
+        restartView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f);
+        restartView.setTypeface(mediumTypeface());
+        restartView.setGravity(Gravity.CENTER);
+        restartView.setMinHeight(dp(40));
+        restartView.setMinimumHeight(dp(40));
+        restartView.setPadding(dp(16), 0, dp(16), 0);
+        restartView.setBackground(buildRippleDrawable(dp(20)));
+        restartView.setOnClickListener(view -> requestGboardRestart());
+        banner.addView(restartView, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        return banner;
+    }
+
     private void requestGboardRestart() {
         try {
             GboardPatchesSettingsOrchestrator.State<GboardPatchesSettingsContract.Feature> state =
@@ -2616,6 +2696,10 @@ public final class GboardPatchesSettingsActivity extends Activity
                 TextUtils.isEmpty(screen.getHeaderSummary()) ? View.GONE : View.VISIBLE);
         applyPanelStyle(screen.getPanelStyle());
         panelContainer.removeAllViews();
+        currentScreenMentionsRestart = screenMentionsRestart(screen);
+        if (restartRecommended && !fullBleed) {
+            panelContainer.addView(createRestartBanner());
+        }
         for (GboardPatchesSettingsContract.StatusBlock statusBlock : screen.getStatusBlocks()) {
             panelContainer.addView(createStatusBlockView(statusBlock));
         }
@@ -3139,6 +3223,7 @@ public final class GboardPatchesSettingsActivity extends Activity
         applyMaterialSwitchStyle(switchView);
         switchView.setChecked(rowModel.isChecked());
         switchView.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            markSettingsChanged();
             try {
                 backgroundStateExecutor.execute(() -> {
                     try {
@@ -3870,28 +3955,54 @@ public final class GboardPatchesSettingsActivity extends Activity
 
     private Typeface headlineTypeface() {
         if (headlineTypeface == null) {
-            headlineTypeface = systemTypeface("google-sans", 400);
+            headlineTypeface = themeTypeface(deviceDefaultHeadlineAppearance(), 400);
         }
         return headlineTypeface;
     }
 
     private Typeface bodyTypeface() {
         if (bodyTypeface == null) {
-            bodyTypeface = systemTypeface("google-sans-text", 400);
+            bodyTypeface = themeTypeface(android.R.style.TextAppearance_DeviceDefault, 400);
         }
         return bodyTypeface;
     }
 
     private Typeface mediumTypeface() {
         if (mediumTypeface == null) {
-            mediumTypeface = systemTypeface("google-sans-text", 500);
+            mediumTypeface = themeTypeface(android.R.style.TextAppearance_DeviceDefault, 500);
         }
         return mediumTypeface;
     }
 
+    // Looked up by name: the headline appearance is newer than the compile SDK may be.
+    @SuppressLint("DiscouragedApi")
+    private int deviceDefaultHeadlineAppearance() {
+        int headline = getResources().getIdentifier(
+                "TextAppearance.DeviceDefault.Headline", "style", "android");
+        return headline != 0 ? headline : android.R.style.TextAppearance_DeviceDefault_Large;
+    }
+
     /** Uses Google Sans where the device ships it (Pixel), otherwise the default sans serif. */
-    private static Typeface systemTypeface(String family, int weight) {
-        Typeface base = Typeface.create(family, Typeface.NORMAL);
+    /**
+     * Uses the font of the system's DeviceDefault text styles, so the page follows the device
+     * font (Google Sans on Pixel) like Gboard's own settings.
+     */
+    private Typeface themeTypeface(int textAppearance, int weight) {
+        Typeface base = null;
+        try {
+            TextView probe = new TextView(this);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                probe.setTextAppearance(textAppearance);
+            } else {
+                probe.setTextAppearance(this, textAppearance);
+            }
+            base = probe.getTypeface();
+        } catch (Throwable throwable) {
+            Log.w(TAG, "Failed to resolve the system font", throwable);
+        }
+        if (base == null) {
+            base = Typeface.DEFAULT;
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             return Typeface.create(base, weight, false);
         }

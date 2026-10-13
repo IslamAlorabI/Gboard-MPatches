@@ -286,7 +286,7 @@ final class GboardClipboardSyncSettingsSection {
 
     private String normalizePairingCodeInput(String value) {
         String code = value == null ? "" : value.trim();
-        if (!code.matches("\\d{4}")) {
+        if (!WebClipboardPreferences.isCurrentPairingCodeFormat(code)) {
             throw new IllegalArgumentException(errorPairingCode);
         }
         return code;
